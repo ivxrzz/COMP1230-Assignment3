@@ -1,5 +1,5 @@
 <?php
-// User class (ivor)
+// User class (ivor) testing new changes in class.php
 class User {
     private $pdo;
 //Testing something hello
