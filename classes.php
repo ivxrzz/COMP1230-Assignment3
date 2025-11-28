@@ -1,4 +1,5 @@
 <?php
+// User class (ivor)
 class User {
     private $pdo;
 
@@ -6,7 +7,7 @@ class User {
     private $username;
     private $email;
     private $passwordHash;
-    public function _construct(PDO $pdo)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -230,4 +231,9 @@ class Topic
         }
         return $result;
     }
+}
+
+class Vote
+{
+
 }
