@@ -1,7 +1,7 @@
 <?php
 class User {
     private $pdo;
-
+//Testing something
     private $id;
     private $username;
     private $email;
