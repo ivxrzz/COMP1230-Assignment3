@@ -2,7 +2,7 @@
 // User class (ivor)
 class User {
     private $pdo;
-
+//Testing something hello
     private $id;
     private $username;
     private $email;
