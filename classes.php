@@ -1,79 +1,53 @@
 <?php
-// User class (ivor) testing new changes in class.php
-class User {
+class User
+{
     private $pdo;
-//Testing something hello
-    private $id;
-    private $username;
-    private $email;
-    private $passwordHash;
+
+    public $id;
+    public $username;
+    public $email;
+    public $passwordHash;
+
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
-    public function getId()
+
+    public function registerUser($username, $email, $password): bool
     {
-        return $this->id;
-    }
-    public function setId($id)
-    {
-        $this->id = (int) $id;
-    }
-    public function getUsername()
-    {
-        return $this->username;
-    }
-    public function setUsername($username)
-    {
-        $this->username = $username;
-    }
-    public function getEmail()
-    {
-        return $this->email;
-    }
-    public function setEmail($email)
-    {
-        $this->email = $email;
-    }
-    public function getPasswordHash()
-    {
-        return $this->passwordHash;
-    }
-    public function setPasswordHash($hash)
-    {
-        $this->passwordHash = $hash;
-    }
-    public function registerUser($username, $email, $password)
-    {
-        if(trim($username) == "")
-        {
+        if (trim($username) === '') {
             return false;
         }
-        if(strlen($password) < 9)
-        {
+
+        if (strlen($password) < 9) {
             return false;
         }
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
-        {
+
+        // Email must be valid
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return false;
         }
-        try
-        {
+
+        try {
+            // Check duplicate username
             $sql = "SELECT id FROM users WHERE username = :username LIMIT 1";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([':username'=> $username]);
-            if($stmt->fetch())
-            {
+            $stmt->execute([':username' => $username]);
+            if ($stmt->fetch(PDO::FETCH_ASSOC)) {
                 return false;
             }
+
+            // Check duplicate email
             $sql = "SELECT id FROM users WHERE email = :email LIMIT 1";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([':email'=> $email]);
-            if($stmt->fetch())
-            {
+            $stmt->execute([':email' => $email]);
+            if ($stmt->fetch(PDO::FETCH_ASSOC)) {
                 return false;
             }
+
+            // Hash password and insert
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
             $sql = "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)";
             $stmt = $this->pdo->prepare($sql);
             $ok = $stmt->execute([
@@ -83,12 +57,12 @@ class User {
             ]);
 
             return $ok;
-        } catch (PDOException $e)
-        {
+        } catch (PDOException $e) {
             return false;
         }
     }
-    public function authenticateUser($username, $password)
+
+    public function authenticateUser($username, $password): bool
     {
         try {
             $sql = "SELECT id, username, email, password FROM users WHERE username = :username LIMIT 1";
@@ -96,22 +70,22 @@ class User {
             $stmt->execute([':username' => $username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if(!$user)
-            {
+            if (!$user) {
                 return false;
             }
-            if(password_verify($password, $user['password']))
-            {
+
+            if (!password_verify($password, $user['password'])) {
                 return false;
             }
-            $this->setId($user['id']);
-            $this->setUsername($user['username']);
-            $this->setEmail($user['email']);
-            $this->setPasswordHash($user['password']);
+
+            // Store some info in the object (optional)
+            $this->id = $user['id'];
+            $this->username = $user['username'];
+            $this->email = $user['email'];
+            $this->passwordHash = $user['password'];
 
             return true;
-        } catch (PDOException $e)
-        {
+        } catch (PDOException $e) {
             return false;
         }
     }
@@ -120,41 +94,154 @@ class User {
 class Topic
 {
     private $pdo;
-    private $id;
-    private $userId;
-    private $title;
-    private $description;
-    private $createdAt;
+    public $id;
+    public $userId;
+    public $title;
+    public $description;
+    public $createdAt;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
-    public function getId()
+
+    // createTopic($userId, $title, $description): bool
+    public function createTopic($userId, $title, $description)
     {
-        return $this->id;
+        try {
+            $sql = "INSERT INTO topics (user_id, title, description, created_at) VALUES (:user_id, :title, :description, NOW())";
+            $stmt = $this->pdo->prepare($sql);
+
+            $ok = $stmt->execute([
+                ':user_id' => $userId,
+                ':title' => $title,
+                ':description' => $description
+            ]);
+
+            return $ok;
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 
-    public function setId($id)
+    public function getTopics()
     {
-        $this->id = (int)$id;
+        $topics = [];
+
+        try {
+            $sql = "SELECT id, user_id, title, description, created_at FROM topics ORDER BY created_at ASC, id ASC";
+            $stmt = $this->pdo->query($sql);
+
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $topic = new Topic($this->pdo);
+                $topic->id = $row['id'];
+                $topic->userId = $row['user_id'];
+                $topic->title = $row['title'];
+                $topic->description = $row['description'];
+                $topic->createdAt = $row['created_at'];
+                $topics[] = $topic;
+            }
+        } catch (PDOException $e) {
+
+        }
+
+        return $topics;
     }
 
-    public function getUserId()
+    public function getCreatedTopics($userId)
     {
-        return $this->userId;
+        $result = [];
+
+        try {
+            $sql = "SELECT id, title, description, created_at FROM Topics WHERE user_id = :user_id ORDER BY created_at ASC, id ASC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':user_id' => $userId]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+
+        }
+
+        return $result;
+    }
+}
+
+class Vote
+{
+    private $pdo;
+
+    public $id;
+    public $userId;
+    public $topicId;
+    public $voteType;
+    public $votedAt;
+
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
     }
 
-    public function setUserId($userId)
+    // vote($userId, $topicId, $voteType): bool
+    public function vote($userId, $topicId, $voteType)
     {
-        $this->userId = (int)$userId;
+        // Only allow 'up' or 'down'
+        if ($voteType !== 'up' && $voteType !== 'down') {
+            return false;
+        }
+
+        // Prevent duplicate vote
+        if ($this->hasVoted($topicId, $userId)) {
+            return false;
+        }
+
+        try {
+            $sql = "INSERT INTO Votes (user_id, topic_id, vote_type, voted_at) VALUES (:user_id, :topic_id, :vote_type, NOW())";
+            $stmt = $this->pdo->prepare($sql);
+
+            $ok = $stmt->execute([
+                ':user_id' => $userId,
+                ':topic_id' => $topicId,
+                ':vote_type' => $voteType
+            ]);
+
+            return $ok;
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 
-    public function getTitle()
+    // hasVoted($topicId, $userId): bool
+    public function hasVoted($topicId, $userId)
     {
-        return $this->title;
+        try {
+            $sql = "SELECT id FROM Votes WHERE topic_id = :topic_id AND user_id = :user_id LIMIT 1";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':topic_id' => $topicId,
+                ':user_id' => $userId
+            ]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ? true : false;
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 
+    // Not in the tests, but okay to keep if you want
+    public function getUserVoteHistory($userId)
+    {
+        $history = [];
+
+        try {
+            $sql = "SELECT topic_id, vote_type, voted_at FROM Votes WHERE user_id = :user_id ORDER BY voted_at DESC, id DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':user_id' => $userId]);
+            $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+
+        }
+
+        return $history;
+    }
     public function setTitle($title)
     {
         $this->title = $title;
@@ -183,14 +270,14 @@ class Topic
     {
         try
         {
-           $sql = "INSERT INTO topics (user_id, title, description, created_at) VALUES (:user_id, :title, :description, NOW())";
-           $stmt = $this->pdo->prepare($sql);
-           $ok = $stmt->execute([
-               ':user_id' => $username,
-               ':title' => $title,
-               ':description' => $description
-           ]);
-           return $ok;
+            $sql = "INSERT INTO topics (user_id, title, description, created_at) VALUES (:user_id, :title, :description, NOW())";
+            $stmt = $this->pdo->prepare($sql);
+            $ok = $stmt->execute([
+                ':user_id' => $username,
+                ':title' => $title,
+                ':description' => $description
+            ]);
+            return $ok;
         } catch (PDOException $e)
         {
             return false;
@@ -232,134 +319,6 @@ class Topic
         return $result;
     }
 }
-
-class Vote
-{
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
