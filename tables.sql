@@ -57,9 +57,9 @@ CREATE TABLE `Topics` (
 
 CREATE TABLE `Users` (
   `id` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `email` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL
+  `username` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
@@ -73,7 +73,7 @@ CREATE TABLE `Votes` (
   `user_id` int(11) NOT NULL,
   `topic_id` int(11) NOT NULL,
   `vote_type` enum('up','down') NOT NULL,
-  `vote_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `voted_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --

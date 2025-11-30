@@ -15,10 +15,11 @@ class User
 
     public function registerUser($username, $email, $password): bool
     {
+        //If the username is empty
         if (trim($username) === '') {
             return false;
         }
-
+        //Is the password is less than 9
         if (strlen($password) < 9) {
             return false;
         }
@@ -28,9 +29,9 @@ class User
             return false;
         }
 
-        try {
+
             // Check duplicate username
-            $sql = "SELECT id FROM users WHERE username = :username LIMIT 1";
+            $sql = "SELECT id FROM Users WHERE username = :username LIMIT 1";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':username' => $username]);
             if ($stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -38,7 +39,7 @@ class User
             }
 
             // Check duplicate email
-            $sql = "SELECT id FROM users WHERE email = :email LIMIT 1";
+            $sql = "SELECT id FROM Users WHERE email = :email LIMIT 1";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':email' => $email]);
             if ($stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -48,7 +49,7 @@ class User
             // Hash password and insert
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-            $sql = "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)";
+            $sql = "INSERT INTO Users (username, email, password) VALUES (:username, :email, :password)";
             $stmt = $this->pdo->prepare($sql);
             $ok = $stmt->execute([
                 ':username' => $username,
@@ -57,15 +58,13 @@ class User
             ]);
 
             return $ok;
-        } catch (PDOException $e) {
-            return false;
-        }
+
     }
 
     public function authenticateUser($username, $password): bool
     {
-        try {
-            $sql = "SELECT id, username, email, password FROM users WHERE username = :username LIMIT 1";
+
+            $sql = "SELECT id, username, email, password FROM Users WHERE username = :username LIMIT 1";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':username' => $username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -85,9 +84,7 @@ class User
             $this->passwordHash = $user['password'];
 
             return true;
-        } catch (PDOException $e) {
-            return false;
-        }
+
     }
 }
 
@@ -108,8 +105,8 @@ class Topic
     // createTopic($userId, $title, $description): bool
     public function createTopic($userId, $title, $description)
     {
-        try {
-            $sql = "INSERT INTO topics (user_id, title, description, created_at) VALUES (:user_id, :title, :description, NOW())";
+
+            $sql = "INSERT INTO Topics (user_id, title, description, created_at) VALUES (:user_id, :title, :description, NOW())";
             $stmt = $this->pdo->prepare($sql);
 
             $ok = $stmt->execute([
@@ -119,17 +116,13 @@ class Topic
             ]);
 
             return $ok;
-        } catch (PDOException $e) {
-            return false;
-        }
     }
 
     public function getTopics()
     {
         $topics = [];
 
-        try {
-            $sql = "SELECT id, user_id, title, description, created_at FROM topics ORDER BY created_at ASC, id ASC";
+            $sql = "SELECT id, user_id, title, description, created_at FROM Topics ORDER BY created_at ASC, id ASC";
             $stmt = $this->pdo->query($sql);
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -141,27 +134,19 @@ class Topic
                 $topic->createdAt = $row['created_at'];
                 $topics[] = $topic;
             }
-        } catch (PDOException $e) {
-
-        }
-
         return $topics;
     }
 
     public function getCreatedTopics($userId)
     {
-        $result = [];
 
-        try {
+
             $sql = "SELECT id, title, description, created_at FROM Topics WHERE user_id = :user_id ORDER BY created_at ASC, id ASC";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':user_id' => $userId]);
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
 
-        }
+            return  $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $result;
     }
 }
 
@@ -183,17 +168,11 @@ class Vote
     // vote($userId, $topicId, $voteType): bool
     public function vote($userId, $topicId, $voteType)
     {
-        // Only allow 'up' or 'down'
-        if ($voteType !== 'up' && $voteType !== 'down') {
-            return false;
-        }
 
-        // Prevent duplicate vote
         if ($this->hasVoted($topicId, $userId)) {
             return false;
         }
 
-        try {
             $sql = "INSERT INTO Votes (user_id, topic_id, vote_type, voted_at) VALUES (:user_id, :topic_id, :vote_type, NOW())";
             $stmt = $this->pdo->prepare($sql);
 
@@ -202,17 +181,14 @@ class Vote
                 ':topic_id' => $topicId,
                 ':vote_type' => $voteType
             ]);
-
             return $ok;
-        } catch (PDOException $e) {
-            return false;
         }
-    }
+
 
     // hasVoted($topicId, $userId): bool
     public function hasVoted($topicId, $userId)
     {
-        try {
+
             $sql = "SELECT id FROM Votes WHERE topic_id = :topic_id AND user_id = :user_id LIMIT 1";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
@@ -221,26 +197,18 @@ class Vote
             ]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             return $row ? true : false;
-        } catch (PDOException $e) {
-            return false;
-        }
+
     }
 
     // Not in the tests, but okay to keep if you want
     public function getUserVoteHistory($userId)
     {
-        $history = [];
 
-        try {
             $sql = "SELECT topic_id, vote_type, voted_at FROM Votes WHERE user_id = :user_id ORDER BY voted_at DESC, id DESC";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':user_id' => $userId]);
-            $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
 
-        }
-
-        return $history;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function setTitle($title)
     {
@@ -268,9 +236,8 @@ class Vote
     }
     public function createTopic($username, $title, $description)
     {
-        try
-        {
-            $sql = "INSERT INTO topics (user_id, title, description, created_at) VALUES (:user_id, :title, :description, NOW())";
+
+            $sql = "INSERT INTO Topics (user_id, title, description, created_at) VALUES (:user_id, :title, :description, NOW())";
             $stmt = $this->pdo->prepare($sql);
             $ok = $stmt->execute([
                 ':user_id' => $username,
@@ -278,16 +245,13 @@ class Vote
                 ':description' => $description
             ]);
             return $ok;
-        } catch (PDOException $e)
-        {
-            return false;
-        }
+
     }
     public function getTopics()
     {
         $topics = [];
-        try {
-            $sql = "SELECT id, user_id, title, description, created_at FROM topics ORDER BY created_at DESC";
+
+            $sql = "SELECT id, user_id, title, description, created_at FROM Topics ORDER BY created_at DESC";
             $stmt = $this->pdo->query($sql);
 
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -299,24 +263,18 @@ class Vote
                 $topic->setCreatedAt($row['created_at']);
                 $topics[] = $topic;
             }
-        } catch (PDOException $e) {
 
-        }
         return $topics;
     }
     public function getCreatedTopics($userId)
     {
-        $result = [];
-        try {
-            $sql = "SELECT id, user_id, title, description, created_at FROM topics WHERE user_id = :user_id ORDER BY created_at DESC";
+
+            $sql = "SELECT id, user_id, title, description, created_at FROM Topics WHERE user_id = :user_id ORDER BY created_at DESC";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([':user_id' => $userId]);
 
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
+           return  $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        }
-        return $result;
     }
 }
 
@@ -342,8 +300,8 @@ class Comment{
 
     //Adding the comment
     public function addComment($userId, $topicId, $commentText){
-        try{
-            $sql = "INSERT INTO Comments(user_id, topic_id, comment, comment_at) VALUES (:user_id, :topic_id, :comment, NOW())";
+
+            $sql = "INSERT INTO Comments(user_id, topic_id, comment, commented_at) VALUES (:user_id, :topic_id, :comment, NOW())";
             $stmt = $this->pdo->prepare($sql);
             $output = $stmt->execute([
                 ':user_id' => $userId,
@@ -351,10 +309,7 @@ class Comment{
                 ':comment' => $commentText
             ]);
             return $output;
-        }catch(PDOException $e){
-            //If something goes wrong it will return false
-            return false;
-        }
+
 
 
     }
@@ -363,21 +318,61 @@ class Comment{
     //Get the Comment //Using an array
     public function getComments($topicId){
 
-        $result = [];
 
-        try{
-            $sql = "SELECT user_id, topic_id, comment, comment_at FROM Comments WHERE topic_id = :topic_id ORDER BY comment_at DESC";
+
+            $sql = "SELECT user_id, topic_id, comment, commented_at FROM Comments WHERE topic_id = :topic_id";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
-                ':topic_id' => $topicId,
-                 ':user_id' => $this->userId
+                ":topic_id" => $topicId
             ]);
-        }catch (PDOException $e){
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
 
         }
 
-        return $result;
+}
 
+const SECONDS = 1;  //1 second
+const MINUTES = 60 * SECONDS; //60 seconds -> minutes
+const HOURS = 60 * MINUTES; //60 minutes -> 1 hour
+const Days = 24 * HOURS; //1 Days 24 hours
+const Weeks = 7 * Days; //1 week
+
+const Months = 30 * Days; //1 month
+const Years = 365 * Days; // 1 Year
+
+class TimeFormatter{
+
+
+    public static function formatTimestamp($timestamp){
+        $currenttime = time();
+        $timediff = $currenttime - $timestamp; //this difference is in seconds
+        if($timediff < MINUTES){
+            return $timediff. " seconds ago";
         }
-
+        if($timediff < HOURS){
+            $minutes = floor($timediff / MINUTES); //if it is less than an hour it will divide the amount of minutes.
+            return $minutes. " minutes ago";
+        }
+        if($timediff < Days){
+            $hours = floor($timediff/HOURS);
+            return $hours." hours ago";
+        }
+        if($timediff < Weeks){
+            $days = floor($timediff / Days);
+            return $days. " days ago";
+        }
+        if($timediff < Months){
+            $weeks = floor($timediff / Weeks);
+            return $weeks. " weeks ago";
+        }
+        if($timediff < Years){
+            $years = floor($timediff / Months);
+            return $years. " months ago";
+        }
+        elseif($timediff > Years){
+            return date("M d, Y", $timestamp);
+        }
+    }
 }

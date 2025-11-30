@@ -6,7 +6,7 @@ return[
 //        'password' => 'ojean@101010',
 //        'database' => 'phpassignment03'
 //    ],
-
+//
     'test' => [
 //        'host' => 'localhost',
         'host'     => '127.0.0.1;port=3309',
@@ -14,5 +14,6 @@ return[
         'password' => 'jean_neal_101010',
         'dbname' => 'php_assignment03'
     ]
+
 ];
 
