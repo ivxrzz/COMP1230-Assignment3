@@ -319,3 +319,61 @@ class Vote
         return $result;
     }
 }
+class Comment{
+    private $pdo;
+
+    private $id;
+
+    private $topicId;
+
+    private $userId;
+
+    private $comment;
+
+    private $comment_At;
+
+    public function __construct($pdo){
+        $this->pdo = $pdo;
+    }
+
+    //Adding the comment
+    public function addComment($userId, $topicId, $commentText){
+        try{
+            $sql = "INSERT INTO Comments(user_id, topic_id, comment, comment_at) VALUES (:user_id, :topic_id, :comment, NOW())";
+            $stmt = $this->pdo->prepare($sql);
+            $output = $stmt->execute([
+                ':user_id' => $userId,
+                ':topic_id' => $topicId,
+                ':comment' => $commentText
+            ]);
+            return $output;
+        }catch(PDOException $e){
+            //If something goes wrong it will return false
+            return false;
+        }
+
+
+    }
+
+
+    //Get the Comment //Using an array
+    public function getComments($topicId){
+
+        $result = [];
+
+        try{
+            $sql = "SELECT user_id, topic_id, comment, comment_at FROM Comments WHERE topic_id = :topic_id ORDER BY comment_at DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':topic_id' => $topicId,
+                ':user_id' => $this->userId
+            ]);
+        }catch (PDOException $e){
+
+        }
+
+        return $result;
+
+    }
+
+}
