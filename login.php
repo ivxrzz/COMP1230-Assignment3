@@ -1,5 +1,5 @@
-<?php
-
+﻿<?php
+session_start();
 include 'classes.php';
 
 define("CONFIG", include __DIR__ . '/db.config.php');
@@ -18,39 +18,45 @@ $conn = new PDO($dsn, $username, $password, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 ]);
 
+$user = new User($conn);
 
-$user = new User($conn); // Creating thE USER Object
+//assign the form values in the $_SESSION
+if(isset($_POST["submit"])){
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
 
-//We created the usr object which is then we use the form _POST request to get the username, email and password.
-if (isset($_POST["username"]) && isset($_POST["email"]) && isset($_POST["pass"])) {
-    if ($user->registerUser($_POST["username"], $_POST["email"], $_POST["pass"])) {
-        header("Location: /comp1230/assignments/project/login.php");
-        exit;
+    //Checks if both fields are filled
+    if(empty($username) || empty($password)){
+        $error = "Please enter username and password.";
+    }
+    else {
+        if ($user->authenticateUser($username, $password)) {
+            $_SESSION['username'] = $username;
+            header("Location: dashboard.php");
+            exit;
+        }
+        else{
+            $error= "Invalid username or password";
+        }
     }
 }
 ?>
 
-<!--
-oneal
-caiocotts@gmail.com
-yomamapass
--->
-
 <html>
 <head>
-    <title>Registration Page</title>
+    <title>Login Page</title>
     <link rel="stylesheet" href="style.css">
-
     <style>
-        body {
-            /* This is for the flex that helps with the register.php*/
-            display: flex;
+        body{
             flex-direction: column;
-            align-items: center;
-            height: 150vh;
         }
+        .error{
+            color:red;
+            text-align: center;
+            margin-bottom: 30px;
 
-        #source-code-register {
+        }
+        #source-code-login{
             max-height: 400px;
             overflow-y: scroll;
             background: #f5f5f5;
@@ -64,29 +70,31 @@ yomamapass
     </style>
 </head>
 <body>
-<div class="container2">
-    <div class="card2">
-        <h1>Registration</h1>
-        <form action="register.php" method="POST">
+<div class="container3">
+    <div class="card3">
+        <h1>Login</h1>
+        <!--Error Message -->
+        <?php if(isset($error)): ?>
+            <div class="error"><?php echo $error; ?></div>
+        <?php endif; ?>
+
+        <form action="login.php" method="POST">
             <label for="username">Username:</label>
             <input type="text" name="username" id="username">
             <br>
             <br>
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email">
-            <br>
-            <br>
             <label for="pass">Password:</label>
-            <input type="password" name="pass" id="pass">
+            <input type="password" name="password" id="password">
             <br>
             <br>
-            <input type="submit">
+            <input type="submit" name="submit" value="Login">
         </form>
     </div>
 </div>
 </body>
+
 <!--There have been issues with the source code being formatted incorrectly due to HTML and CSS  formatting issue hence I had to implement this.-->
-<div id="source-code-register">
+<div id="source-code-login">
     <?php show_source(__FILE__); ?>
 </div>
 </html>

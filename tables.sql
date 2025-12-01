@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 28, 2025 at 06:28 PM
+-- Generation Time: Nov 29, 2025 at 11:44 PM
 -- Server version: 10.6.23-MariaDB-cll-lve
 -- PHP Version: 8.3.27
 
@@ -18,16 +18,16 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `s5468069_project`
+-- Database: `s5544778_project`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `comments`
+-- Table structure for table `Comments`
 --
 
-CREATE TABLE `comments` (
+CREATE TABLE `Comments` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `topic_id` int(11) NOT NULL,
@@ -38,12 +38,12 @@ CREATE TABLE `comments` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `topics`
+-- Table structure for table `Topics`
 --
 
-CREATE TABLE `topics` (
+CREATE TABLE `Topics` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` int(50) NOT NULL,
   `title` varchar(50) NOT NULL,
   `description` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -52,23 +52,23 @@ CREATE TABLE `topics` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Table structure for table `Users`
 --
 
-CREATE TABLE `users` (
+CREATE TABLE `Users` (
   `id` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `email` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL
+  `username` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `votes`
+-- Table structure for table `Votes`
 --
 
-CREATE TABLE `votes` (
+CREATE TABLE `Votes` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `topic_id` int(11) NOT NULL,
@@ -81,32 +81,32 @@ CREATE TABLE `votes` (
 --
 
 --
--- Indexes for table `comments`
+-- Indexes for table `Comments`
 --
-ALTER TABLE `comments`
+ALTER TABLE `Comments`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `topic_id` (`topic_id`);
 
 --
--- Indexes for table `topics`
+-- Indexes for table `Topics`
 --
-ALTER TABLE `topics`
+ALTER TABLE `Topics`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `users`
+-- Indexes for table `Users`
 --
-ALTER TABLE `users`
+ALTER TABLE `Users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `u_name` (`username`),
-  ADD UNIQUE KEY `u_email` (`email`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
--- Indexes for table `votes`
+-- Indexes for table `Votes`
 --
-ALTER TABLE `votes`
+ALTER TABLE `Votes`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `topic_id` (`topic_id`);
@@ -116,27 +116,27 @@ ALTER TABLE `votes`
 --
 
 --
--- AUTO_INCREMENT for table `comments`
+-- AUTO_INCREMENT for table `Comments`
 --
-ALTER TABLE `comments`
+ALTER TABLE `Comments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `topics`
+-- AUTO_INCREMENT for table `Topics`
 --
-ALTER TABLE `topics`
+ALTER TABLE `Topics`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT for table `Users`
 --
-ALTER TABLE `users`
+ALTER TABLE `Users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `votes`
+-- AUTO_INCREMENT for table `Votes`
 --
-ALTER TABLE `votes`
+ALTER TABLE `Votes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -144,24 +144,24 @@ ALTER TABLE `votes`
 --
 
 --
--- Constraints for table `comments`
+-- Constraints for table `Comments`
 --
-ALTER TABLE `comments`
-  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`id`);
+ALTER TABLE `Comments`
+  ADD CONSTRAINT `Comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`),
+  ADD CONSTRAINT `Comments_ibfk_2` FOREIGN KEY (`topic_id`) REFERENCES `Topics` (`id`);
 
 --
--- Constraints for table `topics`
+-- Constraints for table `Topics`
 --
-ALTER TABLE `topics`
-  ADD CONSTRAINT `topics_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `Topics`
+  ADD CONSTRAINT `Topics_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`);
 
 --
--- Constraints for table `votes`
+-- Constraints for table `Votes`
 --
-ALTER TABLE `votes`
-  ADD CONSTRAINT `votes_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `votes_ibfk_2` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`id`);
+ALTER TABLE `Votes`
+  ADD CONSTRAINT `Votes_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`),
+  ADD CONSTRAINT `Votes_ibfk_2` FOREIGN KEY (`topic_id`) REFERENCES `Topics` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

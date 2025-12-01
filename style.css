@@ -1,0 +1,111 @@
+﻿body{
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*height: 100vh;*/
+}
+.container1{
+    text-align: center;
+
+}
+.card1{
+    background-color: #242124;
+    padding: 40px 50px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    color: white;
+}
+
+.btn{
+    background-color: #32174D;
+    color: white;
+    font-weight: bold;
+    padding: 5px 12px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+}
+
+.btn:hover{
+    background-color: #301934;
+}
+/* This is for the Index Page*/
+
+/* This is for the Registration Page */
+
+.container2{
+    text-align: center;
+}
+
+.card2{
+    background-color: #242124;
+    padding: 40px 50px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    color: white;
+}
+
+/* This is for the Registration Page */
+
+/* This is for the Login Page */
+
+.container3{
+    text-align: center;
+
+}
+
+.card3{
+    background-color: #242124;
+    padding: 40px 50px;
+    margin-top: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    color: white;
+}
+
+/* This is for the Login Page */
+
+/* This is for the dashboard Page */
+
+.card4{
+    background-color: #242124;
+    padding: 40px 50px;
+    margin: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    color: white;
+    width: 60%;
+    text-align: left;
+    box-sizing: border-box
+
+}
+
+#description{
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+}
+
+#title{
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+#CreateTopic{
+    background-color: #32174D;
+    color: white;
+    font-weight: bold;
+    padding: 5px 12px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+}
+#createTopic:hover{
+    background-color: #301934;
+}
+
+/* This is for the dashboard Page */
