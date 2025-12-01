@@ -1,35 +1,43 @@
 ﻿<?php
-
 session_start();
-include 'functions.php';
 include 'navbar.php';
+include 'classes.php';
+
+define("CONFIG", include __DIR__ . '/db.config.php');
+
+$hostwithPort = CONFIG['app']['host'];
+$username = CONFIG['app']['username'];
+$password = CONFIG['app']['password'];
+
+//Build DSN for the PDO
+//I had to use AI to help me with the PDO as the dsn was not working due to my db.config being weirdly configured
+$dsn = "mysql:host=$hostwithPort;dbname=php_realassignment";
+
+//Creating a new instance of the PDO Class and assign the variable $conn
+$conn = new PDO($dsn, $username, $password, [
+    //sets up on how the PHP Handles Errors
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+]);
+
+$topicObject = new Topic($conn);
+$voteObject = new Vote($conn);
+
 
 //If the user is not logged in it will redirect it to the Login.php USERS MUST BE LOGGINED MAKE SURE YOUR LOGGED IN
-if(!isset($_SESSION['username'])){
+if (!isset($_SESSION['username'])) {
     header('location: login.php');
     exit;
 }
 
-$theme = getTheme();
 
 ?>
-
 
     <html>
     <head>
         <title>Profile Page</title>
         <style>
             body {
-                background-color: <?= $theme === 'dark' ? '#222' : '#fff' ?>;
-                color: <?= $theme === 'dark' ? '#fff' : '#000' ?>;
                 font-family: Arial, sans-serif;
-            }
-            a.theme-link {
-                padding: 6px 10px;
-                background: <?= $theme === 'dark' ? '#444' : '#ddd' ?>;
-                color: <?= $theme === 'dark' ? '#fff' : '#000' ?>;
-                text-decoration: none;
-                border-radius: 4px;
             }
 
         </style>
@@ -38,17 +46,19 @@ $theme = getTheme();
     <body>
     <h1>Your Profile</h1>
 
-    <a class ="theme-link" href="theme.php?theme=light&redirect=profile.php">Light Theme</a>
-    <a class ="theme-link" href="theme.php?theme=dark&redirect=profile.php">Dark Theme</a>
 
     <?php
-    function getUserVotingHistory($username){
+    function getUserVotingHistory($conn, $user_id)
+    {
+
+        $topicObject = new Topic($conn);
+        $vote = new Vote($conn);
 
         $history = [];
 
-        $topics = getTopics();
-        foreach($topics as $topic){
-            if(hasVoted($username, $topic["topicID"])){
+        $topics = $topicObject->getTopics();
+        foreach ($topics as $topic) {
+            if ($vote->hasVoted($topic->id, $user_id)) {
                 $history[] = $topic;
             }
         }
@@ -56,18 +66,21 @@ $theme = getTheme();
         return $history;
     }
 
-    $username = $_SESSION['username'];
-    $history = getUserVotingHistory($username);
-    $topics = getTopics(); //This is from the functions.php
 
-    $votesCreated = 0;
+    $uname = $_SESSION['username'];
+    $stmt = $conn->prepare("SELECT id FROM Users WHERE username = :username");
+    $stmt->execute(['username' => $uname]);
+    $user_id = $stmt->fetchColumn();
+    $history = $voteObject->getUserVoteHistory($uname);
+    $topics = $topicObject->getTopics();
+
+    $topicsVotedOn = 0;
     $topicsCreated = 0;
-    foreach($topics as $topic){
-        if(hasVoted($username, $topic['topicID'])){
-            $votesCreated++;
-
+    foreach ($topics as $topic) {
+        if ($voteObject->hasVoted($topic->id, $user_id)) {
+            $topicsVotedOn++;
         }
-        if($topic['creator'] == $username){
+        if ($topic->userId == $user_id) {
             $topicsCreated++;
         }
     }
@@ -77,17 +90,17 @@ $theme = getTheme();
 
     echo "
     <p>Total Topics Created: {$topicsCreated}</p> 
-    <p>Total Vote Cast: {$votesCreated}</p> 
+    <p>Total Vote Casted: {$topicsVotedOn}</p> 
 ";
-
     ?>
+
     <ul>
         <?php
-        foreach(getUserVotingHistory($username) as $topic){
-            echo"
-                <li>Title: {$topic['title']}
+        foreach (getUserVotingHistory($conn, $user_id) as $topic) {
+            echo "
+                <li>Title: {$topic->title}
                 <br>
-                    Description: {$topic['description']}
+                    Description: {$topic->description}
                 </li>
                 <br>
                 ";

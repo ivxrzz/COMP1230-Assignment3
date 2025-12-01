@@ -24,7 +24,7 @@ $user = new User($conn); // Creating thE USER Object
 //We created the usr object which is then we use the form _POST request to get the username, email and password.
 if (isset($_POST["username"]) && isset($_POST["email"]) && isset($_POST["pass"])) {
     if ($user->registerUser($_POST["username"], $_POST["email"], $_POST["pass"])) {
-        header("Location: /comp1230/assignments/project/login.php");
+        header("Location: login.php");
         exit;
     }
 }

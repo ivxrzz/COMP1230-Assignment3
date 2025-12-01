@@ -20,6 +20,7 @@ $conn = new PDO($dsn, $username, $password, [
 ]);
 
 $topic = new Topic($conn);
+$vote = new Vote($conn);
 
 //Implementation of the voting, Upvote and Downvote.
 
@@ -47,7 +48,7 @@ $topic = new Topic($conn);
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                height: 100vh;
+                /*height: 100vh;*/
             }
 
             thead {
@@ -88,14 +89,14 @@ $topic = new Topic($conn);
             <?php
 
             foreach ($topic->getTopics() as $t) {
-                $votes = getVoteResults($t->id);
+                $votes = $vote->getVoteResults($t->id);
                 echo "
                             <tr>
                                 <th>{$t->title}</th>
                                 <th>{$t->description}</th>
                                 <th> 
-                                <a href='vote.php?vote=up&topic={$topic->id}'>{$votes['up']} Upvotes</a>
-                                <a href='vote.php?vote=down&topic={$topic->id}'>{$votes['down']} Downvotes</a>
+                                <a href='vote.php?vote=up&topic={$t->id}'>{$votes['up']} Upvotes</a>
+                                <a href='vote.php?vote=down&topic={$t->id}'>{$votes['down']} Downvotes</a>
                                 </th>
                               </tr>
                             ";

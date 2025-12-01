@@ -149,11 +149,7 @@ class Topic
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    function getVoteResults($topicID): array
-    {
 
-        return [];
-    }
 }
 
 class Vote
@@ -212,6 +208,20 @@ class Vote
         $stmt->execute([':user_id' => $userId]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    function getVoteResults($topicID): array
+    {
+        $sqlvoteup = 'SELECT count(id) FROM Votes WHERE topic_id = :topic_id and vote_type = "up"';
+        $upvotedstmt = $this->pdo->prepare($sqlvoteup);
+        $upvotedstmt-> execute([':topic_id' => $topicID]);
+        $voteCount['up'] = (int) $upvotedstmt->fetchColumn();
+        $sqlvotedown = 'SELECT count(id) FROM Votes WHERE topic_id = :topic_id and vote_type = "down"';
+        $downvotedstmt = $this->pdo->prepare($sqlvotedown);
+        $downvotedstmt-> execute([':topic_id' => $topicID]);
+        $voteCount['down'] = (int) $downvotedstmt->fetchColumn();
+        return $voteCount;
+
     }
 
 
