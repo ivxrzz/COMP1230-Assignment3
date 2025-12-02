@@ -1,5 +1,14 @@
 <?php
 
+const SECONDS = 1;  //1 second
+const MINUTES = 60 * SECONDS; //60 seconds -> minutes
+const HOURS = 60 * MINUTES; //60 minutes -> 1 hour
+const Days = 24 * HOURS; //1 Days 24 hours
+const Weeks = 7 * Days; //1 week
+
+const Months = 30 * Days; //1 month
+const Years = 365 * Days; // 1 Year
+
 class User
 {
     private $pdo;
@@ -282,14 +291,7 @@ class Comment
 
 }
 
-const SECONDS = 1;  //1 second
-const MINUTES = 60 * SECONDS; //60 seconds -> minutes
-const HOURS = 60 * MINUTES; //60 minutes -> 1 hour
-const Days = 24 * HOURS; //1 Days 24 hours
-const Weeks = 7 * Days; //1 week
 
-const Months = 30 * Days; //1 month
-const Years = 365 * Days; // 1 Year
 
 class TimeFormatter
 {
@@ -297,6 +299,11 @@ class TimeFormatter
 
     public static function formatTimestamp($timestamp)
     {
+
+        if(!is_numeric($timestamp)) { //This detects if the input is NOT numeric it will change it.
+            $timestamp = strtotime($timestamp);
+        }
+
         $currenttime = time();
         $timediff = $currenttime - $timestamp; //this difference is in seconds
         if ($timediff < MINUTES) {

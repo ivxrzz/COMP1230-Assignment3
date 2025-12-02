@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome to Voting Application - O'Neal Jean</title>
+    <title>Welcome to Voting Application - O'Neal Jean & Ivor</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body{
@@ -30,7 +30,7 @@
 <body>
 <div class="container1">
     <div class ="card1">
-        <h1>Welcome to Voting App - O'Neal Jean</h1>
+        <h1>Welcome to Voting App - O'Neal Jean & Ivor</h1>
         <p>Please <a href="login.php" class="btn">login</a> to continue.</p>
         <p>Don't have an account? Please <a href="register.php" class="btn">Register</a>.</p>
     </div>

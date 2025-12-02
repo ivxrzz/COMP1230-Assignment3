@@ -1,5 +1,6 @@
 ﻿<?php
 session_start();
+date_default_timezone_set('EST'); //represent the current Timezone which is EST
 include 'navbar.php';
 include 'classes.php';
 
@@ -97,10 +98,13 @@ if (!isset($_SESSION['username'])) {
     <ul>
         <?php
         foreach (getUserVotingHistory($conn, $user_id) as $topic) {
+            $formatted = TimeFormatter::formatTimestamp($topic->createdAt);
             echo "
                 <li>Title: {$topic->title}
                 <br>
                     Description: {$topic->description}
+                    <br>
+                    Created: {$formatted}
                 </li>
                 <br>
                 ";
