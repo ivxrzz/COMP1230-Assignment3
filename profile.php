@@ -104,7 +104,7 @@ if (!isset($_SESSION['username'])) {
                 <br>
                     Description: {$topic->description}
                     <br>
-                    Created: {$formatted}
+                    Topic Created: {$formatted}
                 </li>
                 <br>
                 ";
